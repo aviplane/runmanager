@@ -38,9 +38,12 @@ from .__version__ import __version__
 
 
 def _ensure_str(s):
-    """convert bytestrings and numpy strings to python strings"""
-    return s.decode() if isinstance(s, bytes) else str(s)
-
+    """convert bytestrings and numpy strings to python strings.  Also converts lambda expressions to strings."""
+    a = s.decode() if isinstance(s, bytes) else str(s)
+    if callable(s):
+        print("Function: {}".format(s))
+        return "<function>"
+    return a
 
 def is_valid_python_identifier(name):
     # No whitespace allowed. Do this check here because an actual newline in the source
@@ -73,12 +76,12 @@ def is_valid_hdf5_group_name(name):
     Returns:
         bool: Whether or not `name` is a valid name for an hdf5 group. This will
             be `True` if it is a valid name or `False` otherwise.
-    """    
+    """
     # Ensure only ASCII characters are used.
     for char in name:
         if ord(char) >= 128:
             return False
-    
+
     # Ensure forbidden ASCII characters are not used.
     forbidden_characters = ['.', '/']
     for character in forbidden_characters:
@@ -665,7 +668,11 @@ def new_sequence_details(script_path, config=None, increment_sequence_index=True
         config = LabConfig()
     script_basename = os.path.splitext(os.path.basename(script_path))[0]
     shot_storage = config.get('DEFAULT', 'experiment_shot_storage')
-    shot_basedir = os.path.join(shot_storage, script_basename)
+    shot_name_last = config.get('runmanager', 'script_name_last')
+    if not shot_name_last:
+        shot_basedir = os.path.join(shot_storage, script_basename)
+    else:
+        shot_basedir = shot_storage
     now = datetime.datetime.now()
     sequence_timestamp = now.strftime('%Y%m%dT%H%M%S')
 
@@ -693,7 +700,8 @@ def new_sequence_details(script_path, config=None, increment_sequence_index=True
         sequence_index=sequence_index, sequence_timestamp=sequence_timestamp
     )
     shot_output_dir = os.path.join(shot_basedir, subdir)
-
+    if shot_name_last:
+        shot_output_dir = os.path.join(shot_output_dir, script_basename)
     # Compute the shot filename prefix according to labconfig settings:
     try:
         filename_prefix_format = config.get('runmanager', 'filename_prefix_format')
@@ -778,10 +786,11 @@ def make_single_run_file(filename, sequenceglobals, runglobals, sequence_attrs, 
                 # Store it as a null object reference:
                 value = h5py.Reference()
             try:
-                f['globals'].attrs[name] = value
+                f['globals'].attrs[name] = "<function>" if callable(value) else value
             except Exception as e:
-                message = ('Global %s cannot be saved as an hdf5 attribute. ' % name +
-                           'Globals can only have relatively simple datatypes, with no nested structures. ' +
+                message = (f'Global {name} cannot be saved as an hdf5 attribute. ' +
+                           'Globals can only have relatively simple datatypes, with no nested structures.' +
+                           'If you really want something complicated, remember that lambda expressions are allowed' +
                            'Original error was:\n' +
                            '%s: %s' % (e.__class__.__name__, str(e)))
                 raise ValueError(message)
