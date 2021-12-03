@@ -160,3 +160,7 @@ docs/html/
 docs/source/_build/
 docs/source/components.rst
 docs/source/api/_autosummary/
+pip-wheel-metadata/runmanager.dist-info/entry_points.txt
+pip-wheel-metadata/runmanager.dist-info/LICENSE.txt
+pip-wheel-metadata/runmanager.dist-info/METADATA
+pip-wheel-metadata/runmanager.dist-info/top_level.txt
