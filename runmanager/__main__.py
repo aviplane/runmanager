@@ -3562,6 +3562,7 @@ class RemoteServer(ZMQServer):
                     globals_file = active_groups[group_name]
                     if global_name in group_globals:
                         # Confirm it's not also in another group:
+                        # What happened to ask for permission?
                         for other_name, other_globals in sequence_globals.items():
                             if other_globals is not group_globals:
                                 if global_name in other_globals:
@@ -3574,7 +3575,10 @@ class RemoteServer(ZMQServer):
                         # Append expression-final comments in the previous expression to
                         # the new one:
                         comments = runmanager.find_comments(previous_value)
-                        if comments:
+                        # Fixed a bug where setting the previous value that included in a comment
+                        # would append the comment again resulting in exponential comment growth.
+                        # As an anti-comment institution, we wholeheartedly oppose this behavior.
+                        if comments and not raw:
                             # Only the final comment
                             comment_start, comment_end = comments[-1]
                             # Only if the comment is the last thing in the expression:

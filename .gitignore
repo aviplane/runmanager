@@ -164,3 +164,4 @@ pip-wheel-metadata/runmanager.dist-info/entry_points.txt
 pip-wheel-metadata/runmanager.dist-info/LICENSE.txt
 pip-wheel-metadata/runmanager.dist-info/METADATA
 pip-wheel-metadata/runmanager.dist-info/top_level.txt
+.DS_Store

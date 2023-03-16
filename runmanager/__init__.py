@@ -277,6 +277,8 @@ def rename_global(filename, groupname, oldglobalname, newglobalname):
         del group['expansion'].attrs[oldglobalname]
 
 
+### Are these useful elsewhere? 
+
 def get_value(filename, groupname, globalname):
     with h5py.File(filename, 'r') as f:
         value = f['globals'][groupname].attrs[globalname]
@@ -287,6 +289,9 @@ def get_value(filename, groupname, globalname):
 
 
 def set_value(filename, groupname, globalname, value):
+    """
+    Set the value of a h5file located at filename
+    """
     with h5py.File(filename, 'a') as f:
         f['globals'][groupname].attrs[globalname] = value
 
@@ -977,8 +982,10 @@ def find_comments(src):
     """Return a list of start and end indices for where comments are in given Python
     source. Comments on separate lines with only whitespace in between them are
     coalesced. Whitespace preceding a comment is counted as part of the comment."""
+    # Why would you do it like this?
     line_start = 0
     comments = []
+    
     tokens = tokenize.generate_tokens(io.StringIO(src).readline)
     try:
         for token_type, token_value, (_, start), (_, end), _ in tokens:
