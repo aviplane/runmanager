@@ -570,7 +570,13 @@ def expand_globals(sequence_globals, evaled_globals, expansion_config = None, re
                     value = [value]
                 axis.append(value)
                 zip_global_names.append(global_name)
-        axis = list(zip(*axis))
+        try:
+            axis = list(zip(*axis))
+        except:
+            traceback.print_exc()
+            print("FLOAT ERROR HERE")
+            print(axis, zip_key)
+            axis = [axis]
         dimensions['zip '+zip_key] = len(axis)
         axes['zip '+zip_key] = axis
         global_names['zip '+zip_key] = zip_global_names
